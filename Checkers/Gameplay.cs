@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,40 +20,79 @@ namespace Checkers
             {" "," "," "," "," "," "," "," " }
         };
         
-        public static Player DrawWhoStarts(Player player, Player cpu)
+        public static int DrawWhoStarts()
         {
             Random random = new Random();
-            int whoStarts = random.Next(0, 2);
-            switch (whoStarts)
-            {
-                case 0:
-                    return player;
-                default:
-                    return cpu;
-            }      
+            return random.Next(0, 2);
         }
 
         public static void DrawBoard()
         {
+
+            Console.Write($"   ");
             foreach (char c in "ABCDEFG")
             {
                 Console.Write($"{c} ");
             }
             Console.WriteLine("H");
+            Console.WriteLine("   ----------------");
             for (int i = 0; i < board.GetLength(0); i++)
             {
-                Console.Write(i+1);
+                Console.Write($"{i+1} |");
                 for (int j = 0; j < board.GetLength(1); j++)
                 {
-                    Console.Write(board[i,j]);
+                    Console.Write($"{board[i,j]} ".Substring(0,2));
                 }
-                Console.WriteLine(i+1);
+                Console.WriteLine();
             }
+        }
+
+
+        public static void SpacingPawns(Player firstPlayer, Player secondPlayer)
+        {
+           int firstPlayerPawn = 0;
+           int secondPlayerPawn = 0;
+           
+                   
+           for (int y = 0; y < 3; y++)
+            {
+                for(int x = 0; x < 8; x++)
+                {
+                    if ((y % 2 == 0 && x % 2 !=0) || (y % 2 != 0 && x % 2 == 0))
+                    {
+                        SetPawnLocation(firstPlayer, firstPlayerPawn, x, y);
+                        firstPlayerPawn++;
+
+                    }
+                }
+            }
+            for (int y = 5; y < 8; y++)
+            {
+                for (int x = 0; x < 8; x++)
+                {
+                    if ((y % 2 == 0 && x % 2 != 0) || (y % 2 != 0 && x % 2 == 0))
+                    {
+                        SetPawnLocation(secondPlayer, secondPlayerPawn, x, y);
+                        secondPlayerPawn++;
+
+                    }
+                
+                }
+
+            }
+        }
+        private static void SetPawnLocation(Player player, int pawn, int x, int y)
+        {
+            player.pawns[pawn].yLocation = y;
+            player.pawns[pawn].xLocation = x;
+            board[y, x] = player.pawns[pawn].Number;
+            
         }
 
         public static void Turn(Player firstPlayer)
         {
-            Console.WriteLine($"Zaczyna {firstPlayer.Name}");
+            //ustawic kolor
+            Console.WriteLine($"Zaczyna {firstPlayer.Name}.");
         }
     }
 }

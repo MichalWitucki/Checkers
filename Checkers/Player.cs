@@ -13,16 +13,19 @@ namespace Checkers
         public string Name { get; set; }
         public static int NumberOfPawns { get; private set; }
 
-        public Pawn Pawn { get; private set; }
+        //public Pawn Pawn { get; private set; }
+
+        public List<Pawn> pawns = new List<Pawn>();
 
         public Player(string name)
         {
             Name = name;
-            NumberOfPawns = 12;
-            List<Pawn> pawns = new List<Pawn>();
-            for (int i = 1; i <= NumberOfPawns; i++)
+            
+            for (int i = 1; i <= 12; i++)
             {
-                pawns.Add(new Pawn() {Name = i.ToString(),});
+                pawns.Add(new Pawn() {Number = i.ToString(),});
+                NumberOfPawns++;
+
             }
         }
     }
