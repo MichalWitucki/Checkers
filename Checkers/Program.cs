@@ -2,27 +2,35 @@
 
 namespace Checkers
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("GRA - WARCABY.");
-            Console.Write("Podaj swoje imię: ");
-            Player player = new Player("player");
-            Player cpu = new Player("CPU");
-            Console.WriteLine($"Twój przeciwnik to komputer o imieniu {cpu.Name}");
-            switch (DrawWhoStarts())
+            Gameplay game = new Gameplay();
+            //Console.Write("Podaj swoje imię: ");
+            
+            Player player = new Player("player",false);
+            Player cpu = new Player("CPU", true);
+            Console.WriteLine($"Twój przeciwnik to komputer {cpu.Name}. Pionki gracza oznaczone są dużymi literami od A do L, \npionki komputera oznaczone są małymi literami od a do l.");
+            // zaimplementować zasady
+            int whoStarts = DrawWhoStarts();
+            game.SpacingPawns(player, cpu);
+            switch (whoStarts)
             {
                 case 0:
-                    SpacingPawns(player, cpu);
+                    game.DrawBoard();
+                    game.PlayerTurn(player);
+                    game.CpuTurn(cpu);
                     break;
                 case 1:
-                    SpacingPawns(cpu, player);
+                    game.DrawBoard();
+                    game.CpuTurn(cpu);
+                    game.PlayerTurn(player);
                     break;
             }
-                    
-            DrawBoard();
-            //Turn(firstPlayer);
+            
+            
         }
     }
 }

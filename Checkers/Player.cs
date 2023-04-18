@@ -8,24 +8,27 @@ using System.Threading.Tasks;
 
 namespace Checkers
 {
-    internal class Player
+    public class Player
     {
         public string Name { get; set; }
         public static int NumberOfPawns { get; private set; }
-
-        //public Pawn Pawn { get; private set; }
+        public bool IsCpu { get; set; }
 
         public List<Pawn> pawns = new List<Pawn>();
 
-        public Player(string name)
+        public Player(string name, bool isCpu)
         {
             Name = name;
             
             for (int i = 1; i <= 12; i++)
             {
-                pawns.Add(new Pawn() {Number = i.ToString(),});
-                NumberOfPawns++;
+                if (isCpu)
+                    pawns.Add(new Pawn() { Name = ((char)(i+96)).ToString()});
+                else 
+                    pawns.Add(new Pawn() { Name = ((char)(i + 64)).ToString() });
 
+                //Color color = Color.FromKnownColor(KnownColor.Red);
+                NumberOfPawns++;
             }
         }
     }
