@@ -33,7 +33,7 @@ namespace Checkers
 
         private void SetFieldsOnBoardDictionary()
         {
-            int fieldNumber = 1;
+            int fieldNumber = 0;
             foreach (char r in "12345678")
             {
                 foreach(char c in "ABCDEFGH")

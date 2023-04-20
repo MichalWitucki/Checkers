@@ -14,8 +14,8 @@ namespace Checkers
         public bool IsCPU { get; set; }
         public bool IsPlayer { get; set; }
         public string Content { get; set; }
-        public int Number { get; set; } // czy potrzebne??
-        public int Row { get; set; } 
+        public int Number { get; set; } 
+       // public int Row { get; set; } 
 
 
 
