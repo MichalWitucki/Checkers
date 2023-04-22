@@ -15,16 +15,22 @@ namespace Checkers
 
         public Board()
         {
-            fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = false, Number = 0, Content = " " });
+            fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = false, Number = 0, Content = "█" });
 
             for (int i = 1; i < 64; i++)
             {
                 if (i % 8 == 0)
-                    fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = fieldsOnBoard[i - 1].IsBlack, Number = i, Content = " " });
+                {
+                    fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = fieldsOnBoard[i - 1].IsBlack, Number = i});
+                    if (fieldsOnBoard[i].IsBlack)
+                        fieldsOnBoard[i].Content = " ";
+                    else
+                        fieldsOnBoard[i].Content = "█";
+                }
                 else if (fieldsOnBoard[i - 1].IsBlack == false)
                     fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = true, Number = i, Content = " " });
                 else
-                    fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = false, Number = i, Content = " " });
+                    fieldsOnBoard.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = false, Number = i, Content = "█" });
                 //Console.WriteLine($"{i} {fieldsOnBoard[i].IsEmpty} {fieldsOnBoard[i].IsBlack} ");
             }
             SetFieldsOnBoardDictionary();

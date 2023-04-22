@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -34,7 +35,7 @@ namespace Checkers
                 Console.Write($"{c}|");
             }
             Console.WriteLine("H|");
-            //Console.WriteLine("  -----------"); 
+            Console.WriteLine("  -----------------"); 
             
             for (int i = 0; i < 8; i++)
             {
@@ -43,7 +44,8 @@ namespace Checkers
                 {
                     Console.Write($"{board.fieldsOnBoard[j+i*8].Content}|");
                 }
-                Console.WriteLine();
+                Console.WriteLine(); 
+                //Console.WriteLine("  -----------------");
             }
         }
 
@@ -61,7 +63,7 @@ namespace Checkers
                     {
                         board.fieldsOnBoard[x + y * 8].Content = cpu.pawns[cpuPawn].Name;
                         board.fieldsOnBoard[x + y * 8].IsEmpty = false;
-                        board.fieldsOnBoard[x + y * 8].IsCPU = true;
+                        board.fieldsOnBoard[x + y * 8].IsCpu = true;
                         cpu.pawns[cpuPawn].CurrentPosition = x + y * 8;
                         cpuPawn++;
                     }
@@ -93,83 +95,159 @@ namespace Checkers
 
         public void Turn(Player player)
         {
-            if (player.Name == "CPU")
-                CpuTurn();
-            else
-            {
-                Pawn chosenPawn = ChoosePawn(player);
-                MovePawnOrJumpOver(chosenPawn);
-            }
-                          
-            
+            Pawn chosenPawn = ChoosePawn(player);
+            MovePawnOrJumpOver(chosenPawn,player);
         }
-
-    
-
-        public void CpuTurn()
-        {
-            Console.Write("CPU wybiera pionka, którym chce ruszyć: ");
-        }
-
+        
         private Pawn ChoosePawn(Player player)
         {
-            
-
-            do
+            if (player.Name == "CPU")
             {
-                Console.Write($"{player.Name} wybiera pionka, którym chce ruszyć: ");
-                string playerChoice = Console.ReadLine().ToUpper();
-                var chosenPawn = player.pawns.FirstOrDefault(x => x.Name == playerChoice);
-                if (chosenPawn != null)
-                {
-                    
-                    return chosenPawn;
-                }
-                else
-                    Console.WriteLine("Niepoprawny pionek.");      
+                List<Pawn> cpuPawnsWithMovePossible = new List<Pawn>();
+                foreach (var pawn in player.pawns)
+                    if ((board.fieldsOnBoard[pawn.CurrentPosition + 7].IsBlack && board.fieldsOnBoard[pawn.CurrentPosition + 7].IsEmpty) ||
+                        (board.fieldsOnBoard[pawn.CurrentPosition + 9].IsBlack && board.fieldsOnBoard[pawn.CurrentPosition + 9].IsEmpty))
+                        cpuPawnsWithMovePossible.Add(pawn);
+
+                Random randomCpuPawn = new Random();
+                int cpuPawnNumber = randomCpuPawn.Next(0, cpuPawnsWithMovePossible.Count);
+                Console.WriteLine($"{player.Name} wybiera pionka, którym chce ruszyć: {cpuPawnsWithMovePossible[cpuPawnNumber].Name}");
+                return cpuPawnsWithMovePossible[cpuPawnNumber];
+
+                //var CpuMoveIsPossible = from field in board.fieldsOnBoard 
+                //                        where field.IsBlack && field.IsCPU
+                //                        select field;
+
+
             }
-            while (true);
+            else
+            {
+                do
+                {
+                    Console.Write($"{player.Name} wybiera pionka, którym chce ruszyć: ");
+                    string playerChoice = Console.ReadLine().ToUpper();
+                    var chosenPawn = player.pawns.FirstOrDefault(pawn => pawn.Name == playerChoice);
+                    if (chosenPawn != null)
+                    {
+
+                        return chosenPawn;
+                    }
+                    else
+                        Console.WriteLine("Niepoprawny pionek.");
+                }
+                while (true);
+            }
+            
         }
 
-
-        private void MovePawnOrJumpOver(Pawn chosenPawn)
+        private void MovePawnOrJumpOver(Pawn chosenPawn,Player player)
         {
-            Console.Write($"Na które pole przestawić pionka {chosenPawn.Name}?: ");
-            string playerChoice = Console.ReadLine().ToUpper();
-
-
-            if (board.fieldsOnBoardDictionary.ContainsKey(playerChoice))
-            { 
-                if ((board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsEmpty && 
-                    (board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].Number == chosenPawn.CurrentPosition -7 && board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsBlack)) ||
-                    (board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsEmpty &&
-                    (board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].Number == chosenPawn.CurrentPosition - 9 && board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsBlack))
-                    )
+            if (player.Name == "CPU")
+            {
+                if ((board.fieldsOnBoard[chosenPawn.CurrentPosition + 7].IsEmpty && board.fieldsOnBoard[chosenPawn.CurrentPosition + 7].IsBlack) 
+                    && (board.fieldsOnBoard[chosenPawn.CurrentPosition + 9].IsEmpty && board.fieldsOnBoard[chosenPawn.CurrentPosition + 9].IsBlack))
                 {
-                    board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = " "; 
+                    Random randomCpuMove = new Random();
+                    int cpuPawnMove = randomCpuMove.Next(0, 2);
+                    if (cpuPawnMove == 0)
+                    {
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = " ";
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = true;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = false;
+
+                        chosenPawn.CurrentPosition += 7;
+
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = false;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = true;
+
+                        Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
+                    }
+                    else
+                    {
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = " ";
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = true;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = false;
+
+                        chosenPawn.CurrentPosition += 9;
+
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = false;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = true;
+
+                        Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
+                    }
+                }
+                else if ((!board.fieldsOnBoard[chosenPawn.CurrentPosition + 7].IsEmpty && board.fieldsOnBoard[chosenPawn.CurrentPosition + 7].IsBlack) 
+                    && board.fieldsOnBoard[chosenPawn.CurrentPosition + 9].IsBlack)
+                {
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = " ";
                     board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = true;
-                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsPlayer = false;
-                    
-                    chosenPawn.CurrentPosition = board.fieldsOnBoardDictionary[playerChoice];
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = false;
+
+                    chosenPawn.CurrentPosition += 9;
+
                     board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
                     board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = false;
-                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsPlayer = true;
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = true;
 
-                    Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {playerChoice}.");
+                    Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
                 }
-                //else if (true)
-                //{
-                    //bicie
-                //}
-                else
+                else if ((!board.fieldsOnBoard[chosenPawn.CurrentPosition + 9].IsEmpty && board.fieldsOnBoard[chosenPawn.CurrentPosition + 9].IsBlack)
+                    && board.fieldsOnBoard[chosenPawn.CurrentPosition + 7].IsBlack)
                 {
-                    Console.WriteLine("Ruch niemożliwy.");
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = " ";
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = true;
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = false;
+
+                    chosenPawn.CurrentPosition += 7;
+
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = false;
+                    board.fieldsOnBoard[chosenPawn.CurrentPosition].IsCpu = true;
+
+                    Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
                 }
             }
             else
             {
-                Console.WriteLine("Błędne pole.");
-            };
+                Console.Write($"Na które pole przestawić pionka {chosenPawn.Name}?: ");
+                string playerChoice = Console.ReadLine().ToUpper();
+
+                if (board.fieldsOnBoardDictionary.ContainsKey(playerChoice))
+                {
+                    if ((board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsEmpty &&
+                        (board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].Number == chosenPawn.CurrentPosition - 7 && board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsBlack)) ||
+                        (board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsEmpty &&
+                        (board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].Number == chosenPawn.CurrentPosition - 9 && board.fieldsOnBoard[board.fieldsOnBoardDictionary[playerChoice]].IsBlack))
+                        )
+                    {
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = " ";
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = true;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsPlayer = false;
+
+                        chosenPawn.CurrentPosition = board.fieldsOnBoardDictionary[playerChoice];
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsEmpty = false;
+                        board.fieldsOnBoard[chosenPawn.CurrentPosition].IsPlayer = true;
+
+                        Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {playerChoice}.");
+                    }
+                    //else if (true)
+                    //{
+                    //bicie
+                    //}
+                    else
+                    {
+                        Console.WriteLine("Ruch niemożliwy.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Błędne pole.");
+                };
+            }
+
             
         }
     }

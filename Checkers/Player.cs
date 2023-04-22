@@ -12,7 +12,7 @@ namespace Checkers
     {
         public string Name { get; set; }
         public static int NumberOfPawns { get; private set; }
-        public bool IsCpu { get; set; }
+       // public bool IsCpu { get; set; }
 
         public List<Pawn> pawns = new List<Pawn>();
 

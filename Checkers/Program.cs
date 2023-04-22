@@ -9,7 +9,7 @@ namespace Checkers
             Console.WriteLine("GRA - WARCABY.");
             Gameplay game = new Gameplay();
             //Console.Write("Podaj swoje imię: ");
-            Player player = new Player("player",false);
+            Player player = new Player("gracz",false);
             Player cpu = new Player("CPU", true);
             Console.WriteLine($"Twój przeciwnik to komputer {cpu.Name}. Pionki gracza oznaczone są dużymi literami od A do L, \npionki komputera oznaczone są małymi literami od a do l.");
             game.SpacingPawns(player, cpu);
@@ -17,6 +17,7 @@ namespace Checkers
             {
                 game.DrawBoard();
                 game.Turn(player);
+                game.DrawBoard();
                 game.Turn(cpu);
             }
             while (true);
