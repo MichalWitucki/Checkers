@@ -16,9 +16,9 @@ namespace Checkers
             do
             {
                 game.DrawBoard();
-                game.Turn(player, cpu);
+                game.PlayerTurn(player, cpu);
                 game.DrawBoard();
-                game.Turn(cpu, player);
+                game.CpuTurn(cpu, player);
             }
             while (true);
             
