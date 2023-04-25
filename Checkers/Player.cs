@@ -11,8 +11,7 @@ namespace Checkers
     public class Player
     {
         public string Name { get; set; }
-        public static int NumberOfPawns { get; private set; }
-       // public bool IsCpu { get; set; }
+
 
         public List<Pawn> pawns = new List<Pawn>();
 
@@ -23,12 +22,12 @@ namespace Checkers
             for (int i = 1; i <= 12; i++)
             {
                 if (isCpu)
-                    pawns.Add(new Pawn() { Name = ((char)(i+96)).ToString()});
+                    pawns.Add(new Pawn() { Name = ((char)(i + 48)).ToString() });
                 else 
-                    pawns.Add(new Pawn() { Name = ((char)(i + 64)).ToString() });
+                    pawns.Add(new Pawn() { Name = ((char)(i + 96)).ToString() });
 
                 //Color color = Color.FromKnownColor(KnownColor.Red);
-                NumberOfPawns++;
+                
             }
         }
     }

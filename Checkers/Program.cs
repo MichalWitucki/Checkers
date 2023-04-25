@@ -11,7 +11,7 @@ namespace Checkers
             //Console.Write("Podaj swoje imię: ");
             Player player = new Player("gracz",false);
             Player cpu = new Player("CPU", true);
-            Console.WriteLine("Pionki gracza oznaczone są dużymi literami od A do L, \npionki komputera oznaczone są małymi literami od a do l.");
+            Console.WriteLine("Pionki gracza oznaczone są małymi literami od a do l.");
             game.SpacingPawns(player, cpu);
             do
             {
