@@ -11,6 +11,7 @@ namespace Checkers
         public List<FieldOnBoard> fields = new List<FieldOnBoard>();
 
         public Dictionary<string, int> fieldsOnBoardDictionary = new Dictionary<string, int>();
+
         public Dictionary<int, int> CrossCheckDictionary = new Dictionary<int, int> { { 0, -9 }, { 1, -7 }, { 2, 7 },{ 3, 9 } };
 
 
@@ -32,7 +33,7 @@ namespace Checkers
                     fields.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = true, Number = i, Content = " " });
                 else
                     fields.Add(new FieldOnBoard() { IsEmpty = true, IsBlack = false, Number = i, Content = "█" });
-                //Console.WriteLine($"{i} {fieldsOnBoard[i].IsEmpty} {fieldsOnBoard[i].IsBlack} ");
+               
             }
             SetFieldsOnBoardDictionary();
 

@@ -13,7 +13,7 @@ namespace Checkers
         public string Name { get; set; }
         public int CurrentPosition { get; set; }
         public bool IsKing { get; set; }
-        public List<Pawn> PlayerPawnsToJumpOverByCpuPawn { get; set; }
+        public List<Pawn> PawnsToJumpOver { get; set; }
         
         
 

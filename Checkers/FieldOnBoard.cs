@@ -11,11 +11,11 @@ namespace Checkers
        
         public bool IsEmpty { get; set; }
         public bool IsBlack { get; set; }
-        public bool IsCpu { get; set; }
-        public bool IsPlayer { get; set; }
+
+        public string OccupiedBy { get; set; }
+        
         public string Content { get; set; }
         public int Number { get; set; }  
-
 
 
     }

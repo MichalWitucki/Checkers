@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
 using static Checkers.Gameplay;
 
 namespace Checkers
@@ -18,15 +19,16 @@ namespace Checkers
             do
             {
                 game.DrawBoard();
-
+                game.CheckIfPawnCanJumpOver(player, cpu);
+                game.CheckIfPlayerPawnCanMove(player);
                 Pawn chosenPawn = game.PlayerChoosesPawn(player);
-                game.PlayerChoosesField(chosenPawn, cpu);
+                game.PlayerChoosesField(chosenPawn, player, cpu);
 
                 game.DrawBoard();
-                game.CpuTurn(cpu, player);
+                //game.CpuTurn(cpu, player);
             }
             while (true);
-            while (player.pawns.Count > 0 || cpu.pawns.Count > 0 || player.pawnsThatCanMove.Count > 0 || cpu.pawnsThatCanMove.Count > 0) ;
+            while (player.pawns.Count > 0 || cpu.pawns.Count > 0 || player.PawnsThatCanMove.Count > 0 || cpu.PawnsThatCanMove.Count > 0) ;
                       
             
         }
