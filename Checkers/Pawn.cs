@@ -14,6 +14,8 @@ namespace Checkers
         public int CurrentPosition { get; set; }
         public bool IsKing { get; set; }
         public List<Pawn> PlayerPawnsToJumpOverByCpuPawn { get; set; }
+        
+        
 
         public Pawn()
         {

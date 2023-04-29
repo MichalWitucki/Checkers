@@ -1,4 +1,5 @@
-﻿using static Checkers.Gameplay;
+﻿using System.Drawing;
+using static Checkers.Gameplay;
 
 namespace Checkers
 {
@@ -6,6 +7,7 @@ namespace Checkers
     {
         static void Main(string[] args)
         {
+            Color.FromKnownColor(KnownColor.White);
             Console.WriteLine("GRA - WARCABY.");
             Gameplay game = new Gameplay();
             //Console.Write("Podaj swoje imię: ");
@@ -16,12 +18,15 @@ namespace Checkers
             do
             {
                 game.DrawBoard();
-                game.PlayerTurn(player, cpu);
+
+                Pawn chosenPawn = game.PlayerChoosesPawn(player);
+                game.PlayerChoosesField(chosenPawn, cpu);
+
                 game.DrawBoard();
                 game.CpuTurn(cpu, player);
             }
             while (true);
-            
+            while (player.pawns.Count > 0 || cpu.pawns.Count > 0 || player.pawnsThatCanMove.Count > 0 || cpu.pawnsThatCanMove.Count > 0) ;
                       
             
         }
