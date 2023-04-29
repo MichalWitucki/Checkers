@@ -261,30 +261,26 @@ namespace Checkers
         public void CheckIfChosenPawnCanJumpOverAgain(Pawn chosenPawn, Player player, Player opponent) //**//
         {
             player.PawnsThatCanJumpOver = new List<Pawn>();
-
-            
+            chosenPawn.PawnsToJumpOver = new List<Pawn>();
+            for (int i = 0; i < 4; i++)
             {
-                pawn.PawnsToJumpOver = new List<Pawn>();
-
-                for (int i = 0; i < 4; i++)
+                try
                 {
-                    try
-                    {
-                        if (board.fields[pawn.CurrentPosition + board.CrossCheckDictionary[i] * 2].IsBlack
-                            && board.fields[pawn.CurrentPosition + board.CrossCheckDictionary[i] * 2].IsEmpty
-                            && board.fields[pawn.CurrentPosition + board.CrossCheckDictionary[i]].OccupiedBy == opponent.Name)
-                            pawn.PawnsToJumpOver.Add(opponent.pawns.FirstOrDefault(opponentPawn => opponentPawn.CurrentPosition == pawn.CurrentPosition + board.CrossCheckDictionary[i]));
-                    }
-                    catch (ArgumentOutOfRangeException ex)
-                    {
-                        continue;
-                    }
+                    if (board.fields[chosenPawn.CurrentPosition + board.CrossCheckDictionary[i] * 2].IsBlack
+                        && board.fields[chosenPawn.CurrentPosition + board.CrossCheckDictionary[i] * 2].IsEmpty
+                        && board.fields[chosenPawn.CurrentPosition + board.CrossCheckDictionary[i]].OccupiedBy == opponent.Name)
+                        chosenPawn.PawnsToJumpOver.Add(opponent.pawns.FirstOrDefault(opponentPawn => opponentPawn.CurrentPosition == chosenPawn.CurrentPosition + board.CrossCheckDictionary[i]));
                 }
-
-                if (pawn.PawnsToJumpOver.Count != 0)
-                    player.PawnsThatCanJumpOver.Add(pawn);
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    continue;
+                }
             }
+
+            if (chosenPawn.PawnsToJumpOver.Count != 0)
+                player.PawnsThatCanJumpOver.Add(chosenPawn);
         }
+    
 
 
 
