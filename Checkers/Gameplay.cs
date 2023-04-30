@@ -57,11 +57,11 @@ namespace Checkers
         }
         //******************************************************************************
 
-        public void CheckIfPawnCanJumpOver(Player player, Player opponent) //**//
+        public void CheckIfPawnCanJumpOver(Player turnPlayer, Player opponent)
         {
-            player.PawnsThatCanJumpOver = new List<Pawn>();
+            turnPlayer.PawnsThatCanJumpOver = new List<Pawn>();
             
-            foreach (var pawn in player.pawns)
+            foreach (var pawn in turnPlayer.pawns)
             {
                 pawn.PawnsToJumpOver = new List<Pawn>();
 
@@ -79,13 +79,12 @@ namespace Checkers
                         continue;
                     }
                 }
-
                 if (pawn.PawnsToJumpOver.Count != 0)
-                    player.PawnsThatCanJumpOver.Add(pawn);
-            }
+                    turnPlayer.PawnsThatCanJumpOver.Add(pawn);
+             }
         }
 
-        public void CheckIfPlayerPawnCanMove(Player player) //**//
+        public void CheckIfPlayerPawnCanMove(Player player)
         {
 
             player.PawnsThatCanMove = new List<Pawn>();
@@ -104,11 +103,11 @@ namespace Checkers
                     continue;
                 }
         }
-        public void CheckIfCpuPawnCanMove(Player player) //**//
+        public void CheckIfCpuPawnCanMove(Player cpu)
         {
 
-            player.PawnsThatCanMove = new List<Pawn>();
-            foreach (var pawn in player.pawns)
+            cpu.PawnsThatCanMove = new List<Pawn>();
+            foreach (var pawn in cpu.pawns)
                 try
                 {
                     if ((board.fields[pawn.CurrentPosition + 7].IsBlack
@@ -116,7 +115,7 @@ namespace Checkers
                         ||
                         (board.fields[pawn.CurrentPosition + 9].IsBlack
                         && board.fields[pawn.CurrentPosition + 9].IsEmpty))
-                        player.PawnsThatCanMove.Add(pawn);
+                        cpu.PawnsThatCanMove.Add(pawn);
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
@@ -124,7 +123,7 @@ namespace Checkers
                 }
         }
 
-        public Pawn PlayerChoosesPawn(Player player) //**//
+        public Pawn PlayerChoosesPawn(Player player, bool jumpOverIsObligatory) 
         {
             do
             {
@@ -137,7 +136,8 @@ namespace Checkers
                     return chosenPawn;
                 else if (chosenPawn != null 
                     && player.PawnsThatCanMove.Count != 0 
-                    && player.PawnsThatCanMove.Contains(chosenPawn))
+                    && player.PawnsThatCanMove.Contains(chosenPawn)
+                    && !jumpOverIsObligatory)
                     return chosenPawn;
                 else
                     Console.WriteLine("Niepoprawny pionek.");
@@ -152,7 +152,7 @@ namespace Checkers
                     Random randomCpuPawn = new Random();
                     int cpuPawnNumber = randomCpuPawn.Next(0, cpu.PawnsThatCanJumpOver.Count);
                     Pawn choosenPawn = cpu.PawnsThatCanJumpOver[cpuPawnNumber];
-                    //CpuJumpsOver(choosenPawn, ,cpu, player);
+                    CpuJumpsOver(cpu, player, choosenPawn);
 
                 }
                 else
@@ -166,8 +166,8 @@ namespace Checkers
 
 
 
-            public void PlayerChoosesField(Pawn chosenPawn, Player player, Player cpu, bool checkOnlyJump = false) //**//
-        {
+            public void PlayerChoosesField(Pawn chosenPawn, Player player, Player cpu, bool jumpOverIsObligatory)
+            {
             bool incorrectChoice = true;
 
             do
@@ -177,14 +177,19 @@ namespace Checkers
                 if (board.fieldsOnBoardDictionary.ContainsKey(playerChoice))
                 {
                     int chosenField = board.fieldsOnBoardDictionary[playerChoice];
-                    if (player.PawnsThatCanJumpOver.Count != 0)
+                    if (jumpOverIsObligatory && 
+                        (board.fields[chosenField].Number == chosenPawn.CurrentPosition - 18 
+                        || board.fields[chosenField].Number == chosenPawn.CurrentPosition - 14 
+                        || board.fields[chosenField].Number == chosenPawn.CurrentPosition + 14 
+                        || board.fields[chosenField].Number == chosenPawn.CurrentPosition + 18)
+                        &&
+                        board.fields[chosenField].IsEmpty && board.fields[chosenPawn.CurrentPosition - (chosenPawn.CurrentPosition - chosenField) / 2].OccupiedBy == cpu.Name)
                     {
                         LeaveField(chosenPawn);
-                        JumpsOver(chosenPawn, chosenField, player, cpu);
+                        PlayerJumpsOver(chosenPawn, chosenField, player, cpu);
                         incorrectChoice = false;
                     }
                     else if (player.PawnsThatCanMove.Count != 0 
-                        && checkOnlyJump == false
                         &&
                         ((board.fields[chosenField].IsEmpty 
                         && board.fields[chosenField].IsBlack 
@@ -199,6 +204,8 @@ namespace Checkers
                         Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {playerChoice}.");
                         incorrectChoice = false;
                     }
+                    else
+                        Console.WriteLine("Błędne pole.");
                 }
                 else
                     Console.WriteLine("Błędne pole.");
@@ -206,7 +213,7 @@ namespace Checkers
             while (incorrectChoice);
         }
 
-        private void CpuMovesPawn(Pawn chosenPawn, Player player, Player opponent)
+        private void CpuMovesPawn(Pawn chosenPawn, Player cpu, Player player)
         {
             if ((board.fields[chosenPawn.CurrentPosition + 7].IsEmpty && board.fields[chosenPawn.CurrentPosition + 7].IsBlack)
                 &&
@@ -218,13 +225,13 @@ namespace Checkers
                 {
                     LeaveField(chosenPawn);
                     chosenPawn.CurrentPosition += 7;
-                    CpuTakesField(chosenPawn, player); 
+                    CpuTakesField(chosenPawn, cpu); 
                 }
                 else
                 {
                     LeaveField(chosenPawn);
                     chosenPawn.CurrentPosition += 9;
-                    CpuTakesField(chosenPawn, player);
+                    CpuTakesField(chosenPawn, cpu);
                 }
             }
             else if ((board.fields[chosenPawn.CurrentPosition + 7].IsEmpty && board.fields[chosenPawn.CurrentPosition + 7].IsBlack)
@@ -232,48 +239,66 @@ namespace Checkers
             {
                 LeaveField(chosenPawn);
                 chosenPawn.CurrentPosition += 7;
-                CpuTakesField(chosenPawn, player);
+                CpuTakesField(chosenPawn, cpu);
             }
             else if ((board.fields[chosenPawn.CurrentPosition + 9].IsEmpty && board.fields[chosenPawn.CurrentPosition + 9].IsBlack)
                     && (!board.fields[chosenPawn.CurrentPosition + 7].IsEmpty && board.fields[chosenPawn.CurrentPosition + 7].IsBlack))
             {
                 LeaveField(chosenPawn);
                 chosenPawn.CurrentPosition += 9;
-                CpuTakesField(chosenPawn, player);
+                CpuTakesField(chosenPawn, cpu);
             }
             else if ((board.fields[chosenPawn.CurrentPosition + 7].IsEmpty && !board.fields[chosenPawn.CurrentPosition + 7].IsBlack)
                     && (board.fields[chosenPawn.CurrentPosition + 9].IsEmpty && board.fields[chosenPawn.CurrentPosition + 9].IsBlack))
             {
                 LeaveField(chosenPawn);
                 chosenPawn.CurrentPosition += 9;
-                CpuTakesField(chosenPawn, player);
+                CpuTakesField(chosenPawn, cpu);
             }
             else if ((board.fields[chosenPawn.CurrentPosition + 9].IsEmpty && !board.fields[chosenPawn.CurrentPosition + 9].IsBlack)
                 && (board.fields[chosenPawn.CurrentPosition + 7].IsEmpty && board.fields[chosenPawn.CurrentPosition + 7].IsBlack))
             {
                 LeaveField(chosenPawn);
                 chosenPawn.CurrentPosition += 7;
-                CpuTakesField(chosenPawn, player);
+                CpuTakesField(chosenPawn, cpu);
             }
         }
 
-        private void JumpsOver(Pawn chosenPawn, int chosenField, Player player, Player opponent) //**//
+        private void PlayerJumpsOver(Pawn chosenPawn, int chosenField, Player player, Player cpu)
         {
-            Pawn jumpedPawn = opponent.pawns
+            Pawn jumpedPawn = cpu.pawns
                 .FirstOrDefault(pawn => pawn.CurrentPosition == chosenPawn.CurrentPosition - (chosenPawn.CurrentPosition - chosenField) / 2);
             LeaveField(jumpedPawn);
-            opponent.pawns.Remove(jumpedPawn);
+            cpu.pawns.Remove(jumpedPawn);
             PlayerTakesField(chosenPawn, chosenField, player);
             Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
-            CheckIfChosenPawnCanJumpOverAgain(chosenPawn, player, opponent);
-            if (CheckIfChosenPawnCanJumpOverAgain(chosenPawn, player, opponent).Count != 0)
+            if (CheckIfChosenPawnCanJumpOverAgain(chosenPawn, player, cpu).Count != 0)
             {
                 DrawBoard();
-                PlayerChoosesField(chosenPawn, player, opponent, true);
+                PlayerChoosesField(chosenPawn, player, cpu, true);
             }
         }
 
-        private void LeaveField(Pawn chosenPawn) //**//
+        private void CpuJumpsOver(Player cpu, Player player, Pawn chosenPawn)
+        {
+            if (chosenPawn.PawnsToJumpOver.Count > 1)
+            {
+                //logika gdy jest wiecej
+            }
+            else
+            {
+                var jumpedPawn = chosenPawn.PawnsToJumpOver[0];
+                board.fields[jumpedPawn.CurrentPosition].Content = " ";
+                board.fields[jumpedPawn.CurrentPosition].IsEmpty = true;
+                board.fields[jumpedPawn.CurrentPosition].OccupiedBy = null;
+                LeaveField(chosenPawn);
+                chosenPawn.CurrentPosition = chosenPawn.CurrentPosition - 2 * (chosenPawn.CurrentPosition - jumpedPawn.CurrentPosition);
+                player.pawns.Remove(jumpedPawn);
+                CpuTakesField(chosenPawn, cpu);
+            }
+        }
+
+            private void LeaveField(Pawn chosenPawn)
         {
             board.fields[chosenPawn.CurrentPosition].Content = " ";
             board.fields[chosenPawn.CurrentPosition].IsEmpty = true;
@@ -289,18 +314,18 @@ namespace Checkers
             board.fields[chosenPawn.CurrentPosition].IsEmpty = false;
             board.fields[chosenPawn.CurrentPosition].OccupiedBy = player.Name;
         }
-        private void CpuTakesField(Pawn chosenPawn, Player player)
+        private void CpuTakesField(Pawn chosenPawn, Player cpu)
         {
-            IsPawnKing(player, chosenPawn);
+            IsPawnKing(cpu, chosenPawn);
             board.fields[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
             board.fields[chosenPawn.CurrentPosition].IsEmpty = false;
-            board.fields[chosenPawn.CurrentPosition].OccupiedBy = player.Name;
+            board.fields[chosenPawn.CurrentPosition].OccupiedBy = cpu.Name;
             Console.WriteLine($"CPU Przestawia pionka na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
         }
 
-        private void IsPawnKing(Player player, Pawn chosenPawn) //**//
+        private void IsPawnKing(Player turnPlayer, Pawn chosenPawn) 
         {
-            if (player.IsCpu)
+            if (turnPlayer.IsCpu)
             {
                 if (55 < chosenPawn.CurrentPosition && chosenPawn.CurrentPosition < 63)
                 {
@@ -311,13 +336,16 @@ namespace Checkers
             else 
             {
                 if (0 < chosenPawn.CurrentPosition && chosenPawn.CurrentPosition < 8)
-                chosenPawn.Name = chosenPawn.Name.ToUpper();
-                chosenPawn.IsKing = true;
+                {
+                    chosenPawn.Name = chosenPawn.Name.ToUpper();
+                    chosenPawn.IsKing = true;
+                }
+                
             }
         }
 
 
-        public List<Pawn> CheckIfChosenPawnCanJumpOverAgain(Pawn chosenPawn, Player player, Player opponent) //**//
+        public List<Pawn> CheckIfChosenPawnCanJumpOverAgain(Pawn chosenPawn, Player turnPlayer, Player opponent)
         {
             chosenPawn.PawnsToJumpOver = new List<Pawn>();
             for (int i = 0; i < 4; i++)
@@ -451,7 +479,7 @@ namespace Checkers
         //        CpuTakesField(chosenPawn);
         //    }
         //}
-        //private void CpuJumpsOver(Player player, Pawn chosenPawn)
+        //private void CpuJumpsOverOld(Player player, Pawn chosenPawn)
         //{
         //    if (chosenPawn.PlayerPawnsToJumpOverByCpuPawn.Count > 1)
         //    {
@@ -464,39 +492,39 @@ namespace Checkers
         //        board.fields[jumpedPawn.CurrentPosition].IsEmpty = true;
         //        board.fields[jumpedPawn.CurrentPosition].IsPlayer = false;
         //        CpuLeavesField(chosenPawn);
-        //        chosenPawn.CurrentPosition = chosenPawn.CurrentPosition - 2*(chosenPawn.CurrentPosition - jumpedPawn.CurrentPosition);
+        //        chosenPawn.CurrentPosition = chosenPawn.CurrentPosition - 2 * (chosenPawn.CurrentPosition - jumpedPawn.CurrentPosition);
         //        player.pawns.Remove(jumpedPawn);
         //        CpuTakesField(chosenPawn);
         //    }
-                
-            
-
-        ////}
-        //private void CpuLeavesFieldold(Pawn chosenPawn)
-        //{
-        //    board.fields[chosenPawn.CurrentPosition].Content = " ";
-        //    board.fields[chosenPawn.CurrentPosition].IsEmpty = true;
-        //    board.fields[chosenPawn.CurrentPosition].IsCpu = false;
-        //}
-        //private void CpuTakesFieldOld(Pawn chosenPawn) 
-        //{
-        //    IsCpuPawnKing(chosenPawn); 
-        //    board.fields[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
-        //    board.fields[chosenPawn.CurrentPosition].IsEmpty = false;
-        //    board.fields[chosenPawn.CurrentPosition].IsCpu = true;
-        //    Console.WriteLine($"CPU Przestawia pionka na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
-        //}
-        //private void IsCpuPawnKing(Pawn chosenPawn)
-        //{
-        //    if (55 < chosenPawn.CurrentPosition && chosenPawn.CurrentPosition < 63)
-        //    {
-        //        chosenPawn.Name = chosenPawn.Name.ToUpper();
-        //        chosenPawn.IsKing = true;
-        //    }
-        //}
 
 
-    }
+
+            ////}
+            //private void CpuLeavesFieldold(Pawn chosenPawn)
+            //{
+            //    board.fields[chosenPawn.CurrentPosition].Content = " ";
+            //    board.fields[chosenPawn.CurrentPosition].IsEmpty = true;
+            //    board.fields[chosenPawn.CurrentPosition].IsCpu = false;
+            //}
+            //private void CpuTakesFieldOld(Pawn chosenPawn) 
+            //{
+            //    IsCpuPawnKing(chosenPawn); 
+            //    board.fields[chosenPawn.CurrentPosition].Content = chosenPawn.Name;
+            //    board.fields[chosenPawn.CurrentPosition].IsEmpty = false;
+            //    board.fields[chosenPawn.CurrentPosition].IsCpu = true;
+            //    Console.WriteLine($"CPU Przestawia pionka na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
+            //}
+            //private void IsCpuPawnKing(Pawn chosenPawn)
+            //{
+            //    if (55 < chosenPawn.CurrentPosition && chosenPawn.CurrentPosition < 63)
+            //    {
+            //        chosenPawn.Name = chosenPawn.Name.ToUpper();
+            //        chosenPawn.IsKing = true;
+            //    }
+            //}
+
+
+        }
 }
 
 //private void PlayerMovesPawnOrJumpsOver(Pawn chosenPawn, Player player, Player cpu)

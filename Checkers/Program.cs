@@ -8,7 +8,7 @@ namespace Checkers
     {
         static void Main(string[] args)
         {
-            Color.FromKnownColor(KnownColor.White);
+            
             Console.WriteLine("GRA - WARCABY.");
             Gameplay game = new Gameplay();
             //Console.Write("Podaj swoje imię: ");
@@ -18,17 +18,22 @@ namespace Checkers
             game.SpacingPawns(player, cpu);
             do 
             {
+                bool playerJumpOverIsObligatory = false;
                 game.DrawBoard();
 
                 game.CheckIfPawnCanJumpOver(player, cpu);
-                game.CheckIfPlayerPawnCanMove(player);
-                Pawn playerPawn = game.PlayerChoosesPawn(player);
-                game.PlayerChoosesField(playerPawn, player, cpu);
+                if (player.PawnsThatCanJumpOver.Count != 0)
+                    playerJumpOverIsObligatory = true;
+                else
+                    game.CheckIfPlayerPawnCanMove(player);
+                Pawn playerPawn = game.PlayerChoosesPawn(player, playerJumpOverIsObligatory);
+                game.PlayerChoosesField(playerPawn, player, cpu, playerJumpOverIsObligatory);
 
                 game.DrawBoard();
 
                 game.CheckIfPawnCanJumpOver(cpu, player);
-                game.CheckIfCpuPawnCanMove(cpu);
+                if (cpu.PawnsThatCanJumpOver.Count == 0)
+                    game.CheckIfCpuPawnCanMove(cpu);
                 game.CpuChoosesPawn(cpu, player);
 
             }
