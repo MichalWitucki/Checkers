@@ -16,18 +16,22 @@ namespace Checkers
             Player cpu = new Player("CPU", true);
             Console.WriteLine("Pionki gracza oznaczone są małymi literami od a do l.");
             game.SpacingPawns(player, cpu);
-            do
+            do 
             {
                 game.DrawBoard();
+
                 game.CheckIfPawnCanJumpOver(player, cpu);
                 game.CheckIfPlayerPawnCanMove(player);
-                Pawn chosenPawn = game.PlayerChoosesPawn(player);
-                game.PlayerChoosesField(chosenPawn, player, cpu);
+                Pawn playerPawn = game.PlayerChoosesPawn(player);
+                game.PlayerChoosesField(playerPawn, player, cpu);
 
                 game.DrawBoard();
-                //game.CpuTurn(cpu, player);
+
+                game.CheckIfPawnCanJumpOver(cpu, player);
+                game.CheckIfCpuPawnCanMove(cpu);
+                game.CpuChoosesPawn(cpu, player);
+
             }
-            while (true);
             while (player.pawns.Count > 0 || cpu.pawns.Count > 0 || player.PawnsThatCanMove.Count > 0 || cpu.PawnsThatCanMove.Count > 0) ;
                       
             
