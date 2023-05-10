@@ -12,7 +12,7 @@ namespace Checkers
             Console.WriteLine("GRA - WARCABY.");
             Gameplay game = new Gameplay();
             //Console.Write("Podaj swoje imię: ");
-            Player player = new Player("gracz",false);
+            Player player = new Player("Gracz",false);
             Player cpu = new Player("CPU", true);
             Console.WriteLine("Pionki gracza oznaczone są małymi literami od a do l.");
             game.SpacingPawns(player, cpu);
@@ -26,19 +26,37 @@ namespace Checkers
                     playerJumpOverIsObligatory = true;
                 else
                     game.CheckIfPlayerPawnCanMove(player);
+                if (player.PawnsThatCanMove.Count == 0)
+                {
+                    Console.WriteLine("Wygrał CPU. Player nie ma możliwości ruchu.");
+                    break;
+                }
                 Pawn playerPawn = game.PlayerChoosesPawn(player, playerJumpOverIsObligatory);
                 game.PlayerChoosesField(playerPawn, player, cpu, playerJumpOverIsObligatory);
+                if (cpu.pawns.Count == 0)
+                {
+                    Console.WriteLine("Wygrał Player. CPU nie ma pionków.");
+                    break;
 
-                game.DrawBoard();
+                }
+                //game.DrawBoard();
 
                 game.CheckIfPawnCanJumpOver(cpu, player);
                 if (cpu.PawnsThatCanJumpOver.Count == 0)
                     game.CheckIfCpuPawnCanMove(cpu);
+                if (cpu.PawnsThatCanMove.Count == 0)
+                {
+                    Console.WriteLine("Wygrał Player. CPU nie ma możliwości ruchu.");
+                    break;
+                }
                 game.CpuChoosesPawn(cpu, player);
-
+                if (player.pawns.Count == 0)
+                {
+                    Console.WriteLine("Wygrał CPU. Player nie ma pionków");
+                    break;
+                }
             }
-            while (player.pawns.Count > 0 || cpu.pawns.Count > 0 || player.PawnsThatCanMove.Count > 0 || cpu.PawnsThatCanMove.Count > 0) ;
-                      
+            while (true);
             
         }
     }

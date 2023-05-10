@@ -25,7 +25,7 @@ namespace Checkers
             for (int i = 1; i <= 12; i++)
             {
                 if (IsCpu)
-                    pawns.Add(new Pawn() { Name = ((char)(i + 47)).ToString() });
+                    pawns.Add(new Pawn() { Name = "o" });
                 else
                     pawns.Add(new Pawn() { Name = ((char)(i + 96)).ToString() });
 
