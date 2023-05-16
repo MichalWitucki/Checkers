@@ -14,7 +14,7 @@ namespace Checkers
             //Console.Write("Podaj swoje imię: ");
             Player player = new Player("Gracz",false);
             Player cpu = new Player("CPU", true);
-            Console.WriteLine("Pionki gracza oznaczone są małymi literami od a do l.");
+            Console.WriteLine("Pionki gracza oznaczone są małymi literami od a do l. Damki są oznaczone dużymi literami.");
             game.SpacingPawns(player, cpu);
             do 
             {
@@ -39,7 +39,6 @@ namespace Checkers
                     break;
 
                 }
-                //game.DrawBoard();
 
                 game.CheckIfPawnCanJumpOver(cpu, player);
                 if (cpu.PawnsThatCanJumpOver.Count == 0)
