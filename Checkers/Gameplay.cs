@@ -237,10 +237,12 @@ namespace Checkers
                 {
                     int chosenField = board.fieldsOnBoardDictionary[playerChoice];
                     
+
                     if (jumpOverIsObligatory)
                     {
                         int jumpDirection;
                         int checkJumpDirection = chosenPawn.CurrentPosition - chosenField;
+                        
                         if (checkJumpDirection % 7 == 0)
                             jumpDirection = 7;
                         else if (checkJumpDirection % 9 == 0)
@@ -250,14 +252,26 @@ namespace Checkers
                             Console.WriteLine($"Nie można przestawć pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenField)}.");
                             continue;
                         }
+
+                        Pawn jumpedPawn = null;
+
+                        if (chosenPawn.IsKing)
+                        {
+                            for (int i = 1; i < Math.Abs(checkJumpDirection) / jumpDirection; i++)
+                            {
+                                jumpedPawn = chosenPawn.PawnsToJumpOver.FirstOrDefault(pawn => pawn.CurrentPosition == chosenField + (Math.Abs(checkJumpDirection) / (checkJumpDirection / jumpDirection)) * i);
+                                if (jumpedPawn != null)
+                                    break;
+                            }
                             
 
-                        Pawn jumpedPawn = chosenPawn.PawnsToJumpOver.FirstOrDefault(pawn => pawn.CurrentPosition == chosenField + (Math.Abs(checkJumpDirection) / (checkJumpDirection / jumpDirection)));
-                        if (board.fields[chosenField].IsEmpty &&
+                        }
+                        else
+                                jumpedPawn = chosenPawn.PawnsToJumpOver.FirstOrDefault(pawn => pawn.CurrentPosition == chosenField + (Math.Abs(checkJumpDirection) / (checkJumpDirection / jumpDirection)));
+
+                       if (board.fields[chosenField].IsEmpty &&
                        board.fields[chosenField].IsBlack &&
-                       jumpedPawn != null &&
-                       board.fields[chosenField + (Math.Abs(checkJumpDirection) / (checkJumpDirection / jumpDirection))].Number
-                       == jumpedPawn.CurrentPosition)
+                       jumpedPawn != null)
                         {
                             LeaveField(chosenPawn);
                             PlayerJumpsOver(chosenPawn, jumpedPawn, chosenField, player, cpu);
@@ -266,6 +280,21 @@ namespace Checkers
                         }
                         else
                             Console.WriteLine($"Nie można przestawć pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenField)}.");
+                    }
+                    else if (player.PawnsThatCanMove.Count != 0 && jumpOverIsObligatory == false && chosenPawn.IsKing &&
+                            ((board.fields[chosenField].IsEmpty
+                            && board.fields[chosenField].IsBlack
+                            && (board.fields[chosenField].Number == chosenPawn.CurrentPosition - 7 || board.fields[chosenField].Number == chosenPawn.CurrentPosition + 7))
+                            ||
+                            (board.fields[chosenField].IsEmpty
+                            && board.fields[chosenField].IsBlack
+                            && (board.fields[chosenField].Number == chosenPawn.CurrentPosition - 9 || board.fields[chosenField].Number == chosenPawn.CurrentPosition +9))))
+                    {
+                        LeaveField(chosenPawn);
+                        PlayerTakesField(chosenPawn, chosenField, player);
+                        Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
+                        IsPawnKing(player, chosenPawn);
+                        incorrectChoice = false;
                     }
                     else if (player.PawnsThatCanMove.Count != 0 && jumpOverIsObligatory == false
                             &&
@@ -291,6 +320,8 @@ namespace Checkers
             }
             while (incorrectChoice);
         }
+
+
 
         private void CpuMovesPawn(Pawn chosenPawn, Player cpu, Player player)
         {
@@ -355,9 +386,10 @@ namespace Checkers
             cpu.pawns.Remove(jumpedPawn);
             PlayerTakesField(chosenPawn, chosenField, player);
             Console.WriteLine($"Przestawiono pionka {chosenPawn.Name} na pole {board.fieldsOnBoardDictionary.ElementAt(chosenPawn.CurrentPosition)}.");
+            DrawBoard();
             if (CheckIfChosenPawnCanJumpOverAgain(chosenPawn, player, cpu).Count != 0)
             {
-                DrawBoard();
+                
                 PlayerChoosesField(chosenPawn, player, cpu, true);
             }
         }
