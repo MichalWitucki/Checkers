@@ -14,12 +14,6 @@ namespace Checkers
         public int CurrentPosition { get; set; }
         public bool IsKing { get; set; }
         public List<Pawn> PawnsToJumpOver { get; set; }
-        
-        
-
-        public Pawn()
-        {
-           
-        }
+        public List<FieldOnBoard> FieldsToMove { get; set; }
     }
 }

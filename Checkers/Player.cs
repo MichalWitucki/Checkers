@@ -12,10 +12,10 @@ namespace Checkers
     {
         public string Name { get; set; }
         public bool  IsCpu { get; set; }
-
-        public List<Pawn> pawns = new List<Pawn>();
         public List<Pawn> PawnsThatCanMove { get; set; }
         public List<Pawn> PawnsThatCanJumpOver { get; set; }
+
+        public List<Pawn> pawns = new List<Pawn>();
 
         public Player(string name, bool isCpu)
         {
@@ -28,9 +28,7 @@ namespace Checkers
                     pawns.Add(new Pawn() { Name = "o" });
                 else
                     pawns.Add(new Pawn() { Name = ((char)(i + 96)).ToString(), /*IsKing = true*/ } );
-
-            }
-            
+            } 
         }
     }
 }
