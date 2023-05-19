@@ -301,6 +301,7 @@ namespace Checkers
             if (CheckIfChosenPawnCanJumpOverAgain(chosenPawn, player, cpu).Count != 0)
                 PlayerChoosesField(chosenPawn, player, cpu, true);
         }
+
         public void CpuChoosesPawn(Player cpu, Player player)
         {
             if (cpu.PawnsThatCanJumpOver.Count != 0)
