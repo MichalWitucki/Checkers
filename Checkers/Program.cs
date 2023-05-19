@@ -22,11 +22,13 @@ namespace Checkers
                 if (player.PawnsThatCanJumpOver.Count != 0)
                     playerJumpOverIsObligatory = true;
                 else
-                    game.CheckIfPawnCanMove(player);
-                if (player.PawnsThatCanMove.Count == 0)
                 {
-                    Console.WriteLine($"Wygrał CPU. {player.Name} nie ma możliwości ruchu.");
-                    break;
+                    game.CheckIfPawnCanMove(player);
+                    if (player.PawnsThatCanMove.Count == 0)
+                    {
+                        Console.WriteLine($"Wygrał CPU. {player.Name} nie ma możliwości ruchu.");
+                        break;
+                    }
                 }
                 Pawn playerPawn = game.PlayerChoosesPawn(player, playerJumpOverIsObligatory);
                 game.PlayerChoosesField(playerPawn, player, cpu, playerJumpOverIsObligatory);
@@ -38,12 +40,14 @@ namespace Checkers
 
                 game.CheckIfPawnCanJumpOver(cpu, player);
                 if (cpu.PawnsThatCanJumpOver.Count == 0)
-                    game.CheckIfPawnCanMove(cpu);
-                if (cpu.PawnsThatCanMove.Count == 0)
                 {
-                    Console.WriteLine($"Wygrał {player.Name}. CPU nie ma możliwości ruchu.");
-                    break;
-                }
+                    game.CheckIfPawnCanMove(cpu);
+                    if (cpu.PawnsThatCanMove.Count == 0)
+                    {
+                        Console.WriteLine($"Wygrał {player.Name}. CPU nie ma możliwości ruchu.");
+                        break;
+                    }
+                } 
                 game.CpuChoosesPawn(cpu, player);
                 if (player.pawns.Count == 0)
                 {

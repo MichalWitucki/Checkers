@@ -72,21 +72,36 @@ namespace Checkers
                         {
                             try
                             {
-                                if (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j].IsBlack == false 
+                                if (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j].IsBlack == false
                                     ||
                                     (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == opponent.Name
-                                    && board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * (j + 1)].OccupiedBy == opponent.Name))
+                                    && board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * (j + 1)].OccupiedBy == opponent.Name)
+                                    ||
+                                    (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == turnPlayer.Name))
                                     break;
-                                else if (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == opponent.Name
-                                && 
-                                board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]].IsBlack
-                                && 
-                                board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]].IsEmpty)
+                                else if (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == opponent.Name)
                                 {
-                                    pawn.FieldsToMove.Add(board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]]);
-                                    pawn.PawnsToJumpOver.Add(opponent.pawns.FirstOrDefault(opponentPawn => opponentPawn.CurrentPosition == pawn.CurrentPosition + board.crossCheckDictionary[i] * j));
-                                    if (!turnPlayer.PawnsThatCanJumpOver.Contains(pawn))
-                                        turnPlayer.PawnsThatCanJumpOver.Add(pawn);
+                                    Pawn opponentPawn = opponent.pawns.FirstOrDefault(opponentPawn => opponentPawn.CurrentPosition == pawn.CurrentPosition + board.crossCheckDictionary[i] * j);
+                                    try
+                                    {
+                                        for (int k = 1; k < 7; k++)
+                                        {
+                                            if (board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i] * k].IsBlack
+                                            &&
+                                            board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i] * k].IsEmpty)
+                                            {
+                                                pawn.FieldsToMove.Add(board.fields[pawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]*k]);
+                                                if (!pawn.PawnsToJumpOver.Contains(opponentPawn))
+                                                    pawn.PawnsToJumpOver.Add(opponentPawn);
+                                                if (!turnPlayer.PawnsThatCanJumpOver.Contains(pawn))
+                                                    turnPlayer.PawnsThatCanJumpOver.Add(pawn);
+                                            }
+                                        }
+                                    }
+                                    catch (ArgumentOutOfRangeException)
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                             catch (ArgumentOutOfRangeException)
@@ -392,15 +407,36 @@ namespace Checkers
                     {
                         try
                         {
-                            if (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j].IsBlack == false)
+                            if (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j].IsBlack == false
+                                ||
+                                (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == opponent.Name
+                                && board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * (j + 1)].OccupiedBy == opponent.Name)
+                                ||
+                                (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == turnPlayer.Name))
                                 break;
-                            else if (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == opponent.Name
-                            && 
-                            board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]].IsBlack
-                            && 
-                            board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]].IsEmpty)
+                            else if (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j].OccupiedBy == opponent.Name)
                             {
-                                chosenPawn.FieldsToMove.Add(board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]]);
+                                Pawn opponentPawn = opponent.pawns.FirstOrDefault(opponentPawn => opponentPawn.CurrentPosition == chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j);
+                                try
+                                {
+                                    for (int k = 1; k < 7; k++)
+                                    {
+                                        if (board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]*k].IsBlack
+                                        &&
+                                        board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]*k].IsEmpty)
+                                        {
+                                            chosenPawn.FieldsToMove.Add(board.fields[chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j + board.crossCheckDictionary[i]*k]);
+                                            if (!chosenPawn.PawnsToJumpOver.Contains(opponentPawn))
+                                                chosenPawn.PawnsToJumpOver.Add(opponentPawn);
+                                            if (!turnPlayer.PawnsThatCanJumpOver.Contains(chosenPawn))
+                                                turnPlayer.PawnsThatCanJumpOver.Add(chosenPawn);
+                                        }
+                                    }
+                                }
+                                catch (ArgumentOutOfRangeException)
+                                {
+                                    break;
+                                }
                                 chosenPawn.PawnsToJumpOver.Add(opponent.pawns.FirstOrDefault(opponentPawn => opponentPawn.CurrentPosition == chosenPawn.CurrentPosition + board.crossCheckDictionary[i] * j));
                                 turnPlayer.PawnsThatCanJumpOver.Add(chosenPawn);
                                 break;
